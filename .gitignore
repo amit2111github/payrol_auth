@@ -1,2 +1,4 @@
 node_modules/
 .env
+[200~.env.test
+.env.test
