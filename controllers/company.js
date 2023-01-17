@@ -1,15 +1,16 @@
-const db = require('../models/index.js');
+const db = require("../models/index.js");
 const { models } = db.sequelize;
 const { Company, Address, User } = models;
-const alphanumericRandom = require('alphanumeric-random-string-generator');
-const { get_encrypted_password } = require('../services/encryption/index.js');
+const alphanumericRandom = require("alphanumeric-random-string-generator");
+const { get_encrypted_password } = require("../services/encryption/index.js");
 
 console.log(get_encrypted_password());
-const base_app_url = 'payrool.com';
+const base_app_url = "payrool.com";
 
 exports.createCompany = async (req, res) => {
   try {
     const { comapany_name, logo } = req.body;
+    console.log(logo);
     const data = await sequelize.transaction(async (t) => {
       const address = await Address.create(
         {
@@ -23,11 +24,12 @@ exports.createCompany = async (req, res) => {
         },
         { transaction: t }
       );
+
       const company = await Company.create(
         {
           name: comapany_name,
           logo: logo,
-          base_url: comapany_name + '.' + base_app_url,
+          base_url: comapany_name + "." + base_app_url,
           comany_code: alphanumericRandom(6), // TODO:
           address: address.id,
         },
@@ -53,25 +55,26 @@ exports.createCompany = async (req, res) => {
       );
       return { address, company, user };
     });
-    return res.status(200).json({ msg: 'Company created Successfully', data });
+    return res.status(200).json({ msg: "Company created Successfully", data });
   } catch (err) {
     console.log(err);
-    return res.status(400).json({ error: 'Failed to create Company' });
+    return res.status(400).json({ error: "Failed to create Company" });
   }
 };
 
+exports.getCompany = async (req, res) => {
+  try {
+    const { name } = req.params;
+    console.log("here");
+    const data = await Company.findOne({ where: { name } });
+    return res.json(data);
+  } catch (err) {
+    return res.json({ error: "Failed to get Company details" });
+  }
+};
 const getRandomNumber = (len) => {
-  let ans = '';
+  let ans = "";
   for (let i = 0; i < len; i++) ans += Math.floor(Math.random() * 10);
   return ans;
 };
-
 exports.getRandomNumber = getRandomNumber;
-// const allAttributes = [
-//   'id',
-//   'name',
-//   'logo',
-//   'base_url',
-//   'comany_code',
-//   'address',
-// ];

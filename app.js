@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
+const cors = require('cors');
 
 var { init } = require('./db.js');
 
@@ -17,7 +18,7 @@ const leaveRouter = require('./routes/leave');
 
 var app = express();
 app.use(fileUpload());
-
+app.use(cors());
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

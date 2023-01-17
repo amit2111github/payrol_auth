@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   signin,
@@ -14,36 +14,44 @@ const {
   forgotPasswordS2,
   forgotPasswordS3,
   changeProfilePhoto,
-} = require('../controllers/user');
+  getAllEmployee,
+} = require("../controllers/user");
 
-router.post('/signin', signin);
+router.post("/signin", signin);
 
-router.get('/get-company-url/:user_code', getCompanyUrl);
+router.get("/get-company-url/:user_code", getCompanyUrl);
 
 router.post(
-  '/create/employee1',
+  "/get/allEmployee",
+  isSignedIn,
+  isAuthenticated,
+  isAdmin,
+  getAllEmployee
+);
+router.post(
+  "/create/employee1",
   isSignedIn,
   isAuthenticated,
   isAdmin,
   crateOneEmployee
 );
 router.post(
-  '/create/employeeM',
+  "/create/employeeM",
   isSignedIn,
   isAuthenticated,
   isAdmin,
   crateEmployeeFromCSV
 );
 router.post(
-  '/change-depatment',
+  "/change-depatment",
   isSignedIn,
   isAuthenticated,
   isAdmin,
   changeDepartment
 );
-router.post('/password/forgot/s1', forgotPasswordS1);
-router.post('/password/forgot/s2', forgotPasswordS2, forgotPasswordS3);
-router.post('/password/change', isSignedIn, isAuthenticated, changePassword);
-router.put('/profile/photo', isSignedIn, isAuthenticated, changeProfilePhoto);
+router.post("/password/forgot/s1", forgotPasswordS1);
+router.post("/password/forgot/s2", forgotPasswordS2, forgotPasswordS3);
+router.post("/password/change", isSignedIn, isAuthenticated, changePassword);
+router.put("/profile/photo", isSignedIn, isAuthenticated, changeProfilePhoto);
 
 module.exports = router;
