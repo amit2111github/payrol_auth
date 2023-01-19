@@ -58,7 +58,12 @@ exports.isAdmin = (req, res, next) => {
 exports.crateOneEmployee = async (req, res, next) => {
   try {
     const { company_id } = req.body;
+    const data = await User.findOne({ where: { email: req.body.email } });
+    if (data) {
+      return res.json({ error: "One Employe already has this email Id." });
+    }
     const plainPassword = getRandomNumber(6);
+
     await sequelize.transaction(async (t) => {
       const user = await User.create(
         {
@@ -205,6 +210,7 @@ exports.getAllEmployee = async (req, res) => {
     const { company_id, id } = req.body;
     const data = await User.findAll({
       where: { company_id, id: { [Op.ne]: id } },
+      include: [{ model: Department, as: "department_as" }],
     });
     return res.json(data);
   } catch (err) {
@@ -265,9 +271,13 @@ exports.getCompanyUrl = async (req, res) => {
 
 exports.changeDepartment = async (req, res) => {
   try {
-    const { user_id, department_id, company_id } = req.body;
+    const { user_code, department_id, company_id } = req.body;
+    const data = await User.findOne({ raw: true, where: { user_code } });
+    if (!data) {
+      return res.json({ error: "No such employee exists" });
+    }
     const departmentHeadeByCurrentUser = await Department.findOne({
-      where: { managed_by: user_id, company_id },
+      where: { managed_by: data.id, company_id },
     });
     // console.log(departmentHeadeByCurrentUser);
     await sequelize.transaction(async (t) => {
@@ -285,11 +295,11 @@ exports.changeDepartment = async (req, res) => {
       );
       await User.update(
         { department_id, role: "EMPLOYEE" },
-        { where: { id: user_id, company_id } },
+        { where: { id: data.id, company_id } },
         { transaction: t }
       );
     });
-    return res.json({ msg: "Department chaned for " + user_id });
+    return res.json({ msg: "Department chaned for " + user_code });
   } catch (err) {
     console.log(err);
     return res.status(400).json({ error: "Fail to Changer department", err });
@@ -375,5 +385,19 @@ exports.changeProfilePhoto = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.json({ error: "Failed to update profile photo" });
+  }
+};
+
+exports.getManager = async (req, res) => {
+  try {
+    const { id, company_id } = req.body;
+    const data = await User.findAll({
+      where: { company_id, role: "MANAGER" },
+      include: [{ model: Department, as: "department_as" }],
+    });
+    return res.json(data);
+  } catch (err) {
+    console.log(err);
+    return res.json({ error: "Failed to get All Manager" });
   }
 };

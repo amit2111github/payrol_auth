@@ -15,6 +15,7 @@ const {
   forgotPasswordS3,
   changeProfilePhoto,
   getAllEmployee,
+  getManager,
 } = require("../controllers/user");
 
 router.post("/signin", signin);
@@ -49,6 +50,7 @@ router.post(
   isAdmin,
   changeDepartment
 );
+router.post("/getManager", isSignedIn, isAuthenticated, getManager);
 router.post("/password/forgot/s1", forgotPasswordS1);
 router.post("/password/forgot/s2", forgotPasswordS2, forgotPasswordS3);
 router.post("/password/change", isSignedIn, isAuthenticated, changePassword);

@@ -3,6 +3,7 @@ const { sequelize } = require("../models/index.js");
 const db = require("../models/index.js");
 const { models } = db.sequelize;
 const { Department, User } = models;
+const Op = db.Sequelize.Op;
 
 exports.createDepartment = async (req, res, next) => {
   try {
@@ -33,6 +34,13 @@ exports.createDepartment = async (req, res, next) => {
 exports.changeManager = async (req, res) => {
   try {
     const { user_id, company_id, department_id } = req.body;
+    const user = await User.findOne({
+      raw: true,
+      where: { user_code: user_id },
+    });
+    if (!user) {
+      return res.json({ error: "No such Employee." });
+    }
     const data = await Department.findOne({
       where: { company_id, id: department_id },
     });
@@ -45,13 +53,13 @@ exports.changeManager = async (req, res) => {
         { transaction: t }
       );
       await Department.update(
-        { managed_by: user_id },
+        { managed_by: user.id },
         { where: { company_id, id: department_id } },
         { transaction: t }
       );
       await User.update(
-        { role: "MANAGER" },
-        { where: { id: user_id } },
+        { role: "MANAGER", department_id },
+        { where: { id: user.id } },
         { transaction: t }
       );
     });
@@ -67,7 +75,10 @@ exports.changeManager = async (req, res) => {
 exports.getAllDepartment = async (req, res) => {
   try {
     const { company_id } = req.body;
-    const data = await Department.findAll({ where: { company_id } });
+    const data = await Department.findAll({
+      where: { company_id },
+      include: [{ model: User, as: "managedBy" }],
+    });
     return res.json(data);
   } catch (err) {
     console.log(err);

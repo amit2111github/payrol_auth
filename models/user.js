@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
-    'User',
+    "User",
     {
       id: {
         autoIncrement: true,
@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.TEXT,
         allowNull: false,
-        unique: 'unq_user',
+        unique: "unq_user",
       },
       phone_number: {
         type: DataTypes.TEXT,
@@ -33,8 +33,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'company',
-          key: 'id',
+          model: "company",
+          key: "id",
         },
       },
       role: {
@@ -45,16 +45,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: 'employee_type',
-          key: 'id',
+          model: "employee_type",
+          key: "id",
         },
       },
       department_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: 'department',
-          key: 'id',
+          model: "department",
+          key: "id",
         },
       },
       profile_picture: {
@@ -77,7 +77,7 @@ module.exports = (sequelize, DataTypes) => {
       tax_slab: {
         type: DataTypes.TEXT,
         allowNull: true,
-        comment: 'old or new',
+        comment: "old or new",
       },
       user_code: {
         type: DataTypes.TEXT,
@@ -94,20 +94,20 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      tableName: 'user',
-      schema: 'public',
+      tableName: "user",
+      schema: "public",
       timestamps: false,
       underscored: true,
       indexes: [
         {
-          name: 'pk_tbl',
+          name: "pk_tbl",
           unique: true,
-          fields: [{ name: 'id' }],
+          fields: [{ name: "id" }],
         },
         {
-          name: 'unq_user',
+          name: "unq_user",
           unique: true,
-          fields: [{ name: 'email' }],
+          fields: [{ name: "email" }],
         },
       ],
     }
@@ -131,46 +131,47 @@ module.exports = (sequelize, DataTypes) => {
   // ];
   User.associate = (models) => {
     User.belongsTo(models.Company, {
-      foreignKey: 'company_id',
-      sourceKey: 'id',
-      as: 'company',
+      foreignKey: "company_id",
+      sourceKey: "id",
+      as: "company",
     });
     User.belongsTo(models.EmployeeType, {
-      foreignKey: 'employee_type',
-      sourceKey: 'id',
-      as: 'employee_type_as',
+      foreignKey: "employee_type",
+      sourceKey: "id",
+      as: "employee_type_as",
     });
     User.belongsTo(models.Department, {
-      foreignKey: 'department_id',
-      sourceKey: 'id',
-      as: 'department_as',
+      foreignKey: "department_id",
+      sourceKey: "id",
+      as: "department_as",
     });
     User.hasMany(models.AccountDetails, {
-      foreignKey: 'user_id',
+      foreignKey: "user_id",
     });
     User.hasMany(models.Address, {
-      foreignKey: 'user_id',
+      foreignKey: "user_id",
     });
     User.hasMany(models.Department, {
-      foreignKey: 'managed_by',
+      foreignKey: "managed_by",
+      as: "department",
     });
     User.hasMany(models.Education, {
-      foreignKey: 'user_id',
+      foreignKey: "user_id",
     });
     User.hasMany(models.Kyc, {
-      foreignKey: 'user_id',
+      foreignKey: "user_id",
     });
     User.hasMany(models.RequestedLeave, {
-      foreignKey: 'user_id',
+      foreignKey: "user_id",
     });
     User.hasMany(models.Salary, {
-      foreignKey: 'user_id',
+      foreignKey: "user_id",
     });
     User.hasMany(models.UserInvestment, {
-      foreignKey: 'user_id',
+      foreignKey: "user_id",
     });
     User.hasMany(models.UserLeave, {
-      foreignKey: 'user_id',
+      foreignKey: "user_id",
     });
   };
 

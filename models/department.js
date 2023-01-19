@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const Department = sequelize.define(
-    'Department',
+    "Department",
     {
       id: {
         autoIncrement: true,
@@ -16,30 +16,30 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'company',
-          key: 'id',
+          model: "company",
+          key: "id",
         },
       },
       managed_by: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: 'user',
-          key: 'id',
+          model: "user",
+          key: "id",
         },
       },
     },
     {
       sequelize,
-      tableName: 'department',
-      schema: 'public',
+      tableName: "department",
+      schema: "public",
       timestamps: false,
       underscored: true,
       indexes: [
         {
-          name: 'pk_department',
+          name: "pk_department",
           unique: true,
-          fields: [{ name: 'id' }],
+          fields: [{ name: "id" }],
         },
       ],
     }
@@ -53,17 +53,18 @@ module.exports = (sequelize, DataTypes) => {
   // ];
   Department.associate = (models) => {
     Department.belongsTo(models.Company, {
-      foreignKey: 'company_id',
-      sourceKey: 'id',
-      as: 'company_id_as',
+      foreignKey: "company_id",
+      sourceKey: "id",
+      as: "company_id_as",
     });
     Department.belongsTo(models.User, {
-      foreignKey: 'managed_by',
-      sourceKey: 'id',
-      as: 'managed_by_as',
+      foreignKey: "managed_by",
+      sourceKey: "id",
+      as: "managedBy",
     });
     Department.hasMany(models.User, {
-      foreignKey: 'department_id',
+      foreignKey: "department_id",
+      as: "users",
     });
   };
 
