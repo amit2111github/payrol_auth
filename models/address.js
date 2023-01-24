@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const Address = sequelize.define(
-    'Address',
+    "Address",
     {
       id: {
         autoIncrement: true,
@@ -12,8 +12,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: true,
         references: {
-          model: 'user',
-          key: 'id',
+          model: "user",
+          key: "id",
         },
       },
       latitude: {
@@ -47,15 +47,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      tableName: 'address',
-      schema: 'public',
+      tableName: "address",
+      schema: "public",
       timestamps: false,
       underscored: true,
       indexes: [
         {
-          name: 'pk_address',
+          name: "pk_address",
           unique: true,
-          fields: [{ name: 'id' }],
+          fields: [{ name: "id" }],
         },
       ],
     }
@@ -73,12 +73,12 @@ module.exports = (sequelize, DataTypes) => {
   // ];
   Address.associate = (models) => {
     Address.hasMany(models.Company, {
-      foreignKey: 'address',
+      foreignKey: "address",
     });
     Address.belongsTo(models.User, {
-      foreignKey: 'user_id',
-      sourceKey: 'id',
-      as: 'user',
+      foreignKey: "user_id",
+      sourceKey: "id",
+      as: "user",
     });
   };
 

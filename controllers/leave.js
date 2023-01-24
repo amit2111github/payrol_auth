@@ -1,8 +1,8 @@
-const { sequelize } = require('../models/index.js');
-const db = require('../models/index.js');
-const user = require('../models/user.js');
+const { sequelize } = require("../models/index.js");
+const db = require("../models/index.js");
+const user = require("../models/user.js");
 const { models } = db.sequelize;
-const { CompanyGrantedLeaves, User, UserLeave } = models;
+const { CompanyGrantedLeaves, User, LeaveType, UserLeave } = models;
 
 exports.createLeave = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ exports.createLeave = async (req, res) => {
     });
     if (isAlreadyAlloted) {
       return res.json({
-        error: 'This leave has already been allocated for your company',
+        error: "This leave has already been allocated for your company",
       });
     }
 
@@ -25,7 +25,7 @@ exports.createLeave = async (req, res) => {
       let users = await User.findAll(
         {
           where: { company_id, currently_working: true },
-          attributes: ['id'],
+          attributes: ["id"],
         },
         { transaction: t }
       );
@@ -35,17 +35,27 @@ exports.createLeave = async (req, res) => {
         leave_id,
         assigned: others.days,
         from: new Date(),
-        to: new Date(date.getFullYear() + '-' + 12 + '-' + 31),
+        to: new Date(date.getFullYear() + "-" + 12 + "-" + 31),
       }));
       users = await UserLeave.bulkCreate(users, { transaction: t });
       return res.json({
-        msg: 'Leave has been alloted successfully for your company.',
+        msg: "Leave has been alloted successfully for your company.",
       });
     });
   } catch (err) {
     console.log(err);
     return res
       .status(400)
-      .json({ error: 'Failed to create this leave for company' });
+      .json({ error: "Failed to create this leave for company" });
+  }
+};
+
+exports.getAllLeaveType = async (req, res) => {
+  try {
+    const data = await LeaveType.findAll();
+    return res.json(data);
+  } catch (err) {
+    console.log(err);
+    return res.json({ error: "Failed to get All Leave Type" });
   }
 };
