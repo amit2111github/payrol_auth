@@ -1,4 +1,4 @@
-const { Address } = require('../models/index.js');
+const { Address } = require("../models/index.js");
 
 exports.createAddress = async (req, res, next) => {
   try {
@@ -17,7 +17,7 @@ exports.createAddress = async (req, res, next) => {
     return res.json({ data });
   } catch (err) {
     console.log(err);
-    return res.status(400).json({ error: 'Failed to create Address' });
+    return res.status(400).json({ error: "Failed to create Address" });
   }
 };
 
@@ -32,6 +32,6 @@ exports.updateAddress = async (req, res) => {
 
     return res.json({ data });
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to update Address' });
+    return res.status(400).json({ error: "Failed to update Address" });
   }
 };

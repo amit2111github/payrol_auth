@@ -89,8 +89,10 @@ exports.getAllDepartment = async (req, res) => {
 exports.getAllUser = async (req, res) => {
   try {
     const { department_id } = req.body;
-    const data = await User.findAll({ where: { department_id } });
-    return res.json({ data });
+    const data = await User.findAll({
+      where: { department_id, role: "EMPLOYEE" },
+    });
+    return res.json(data);
   } catch (err) {
     console.log(err);
     return res.json({ error: "Failed to get All User." });

@@ -1,16 +1,21 @@
 const db = require("../models/index.js");
 const { models } = db.sequelize;
+const axios = require("axios");
+const { imageUrl } = require("../config/vars");
 const { Company, Address, User } = models;
 const alphanumericRandom = require("alphanumeric-random-string-generator");
 const { get_encrypted_password } = require("../services/encryption/index.js");
 
-console.log(get_encrypted_password());
+// console.log(get_encrypted_password());
 const base_app_url = "payrool.com";
 
 exports.createCompany = async (req, res) => {
   try {
     const { comapany_name, logo } = req.body;
-    console.log(logo);
+    const already = await Company.findOne({ where: { name: comapany_name } });
+    if (already) {
+      return res.json({ error: "This company is not available" });
+    }
     const data = await sequelize.transaction(async (t) => {
       const address = await Address.create(
         {
@@ -62,11 +67,52 @@ exports.createCompany = async (req, res) => {
   }
 };
 
+exports.changeLogo = async (req, res) => {
+  try {
+    const { s3link, id, company_id } = req.body;
+    await Company.update({ logo: s3link }, { where: { id: company_id } });
+    const config = {
+      method: "post",
+      url: imageUrl + "signed-url/",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: JSON.stringify({ Key: s3link }),
+    };
+    const url = await axios(config)
+      .then((data) => data.data.url)
+      .catch(function (error) {
+        throw error;
+      });
+    return res.json({ url });
+  } catch (err) {
+    console.log(err);
+    return res.json({ error: "Failed to change logo" });
+  }
+};
 exports.getCompany = async (req, res) => {
   try {
     const { name } = req.params;
-    console.log("here");
+    console.log(name);
     const data = await Company.findOne({ where: { name } });
+    // console.lo
+    if (data.dataValues.logo) {
+      var config = {
+        method: "post",
+        url: imageUrl + "signed-url/",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: JSON.stringify({ Key: data.dataValues.logo }),
+      };
+      const url = await axios(config)
+        .then((data) => data.data.url)
+        .catch(function (error) {
+          throw error;
+        });
+      // console.log(url);
+      data.dataValues.logo = url;
+    }
     return res.json(data);
   } catch (err) {
     return res.json({ error: "Failed to get Company details" });

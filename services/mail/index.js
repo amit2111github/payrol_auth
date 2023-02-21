@@ -1,7 +1,7 @@
-const nodemailer = require('nodemailer');
-const { email, email_password, frontend_url } = require('../../config/vars');
+const nodemailer = require("nodemailer");
+const { email, email_password, frontend_url } = require("../../config/vars");
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
     user: email,
     pass: email_password,
@@ -14,7 +14,7 @@ const sendMailToUsers = (users) => {
     const mailOptions = {
       from: email,
       to: user.email,
-      subject: 'Your Account has been Create on Payrool.com',
+      subject: "Your Account has been Create on Payrool.com",
       html: `<h3>Hello ${user.name}</h3>
               <p>your user code is ${user.user_code}</p>
               <p>your password is ${user.password}</p>
@@ -25,16 +25,17 @@ const sendMailToUsers = (users) => {
       if (error) {
         console.log(error);
       } else {
-        console.log('Email sent: ' + info.response);
+        console.log("Email sent: " + info.response);
       }
     });
   });
 };
 exports.sendMailForPasswordChange = (user) => {
+  console.log(user, email);
   const mailOptions = {
     from: email,
     to: user.email,
-    subject: 'Otp for password changed',
+    subject: "Otp for password changed",
     html: `<h3>Hello ${user.name}</h3>
             <p>your request to change password has been accepted.</p>
             <p>Use this otp ->  ${user.otp} to change your Password</p>
@@ -46,7 +47,7 @@ exports.sendMailForPasswordChange = (user) => {
     if (error) {
       console.log(error);
     } else {
-      console.log('Email sent: ' + info.response);
+      console.log("Email sent: " + info.response);
     }
   });
 };

@@ -1,6 +1,15 @@
 const db = require("../models/index.js");
 const { models } = db.sequelize;
-const { Company, User, Department, UserLeave, CompanyGrantedLeaves } = models;
+const axios = require("axios");
+const { imageUrl } = require("../config/vars");
+const {
+  Company,
+  User,
+  Department,
+  UserLeave,
+  EmployeeType,
+  CompanyGrantedLeaves,
+} = models;
 const jwt = require("jsonwebtoken");
 const { getRandomNumber } = require("./company");
 const fs = require("fs");
@@ -24,7 +33,7 @@ exports.isSignedIn = (req, res, next) => {
     next();
   } catch (err) {
     console.log(err);
-    return res.status(400).json({ error: "You are not signed in.", code: 1 });
+    return res.json({ error: "You are not signed in.", code: 1 });
   }
 };
 exports.isAuthenticated = (req, res, next) => {
@@ -222,7 +231,14 @@ exports.getAllEmployee = async (req, res) => {
 exports.signin = async (req, res) => {
   try {
     const { user_code, password } = req.body;
-    let user = await User.findOne({ where: { user_code } });
+    let user = await User.findOne({
+      where: { user_code },
+      include: [
+        { model: Department, as: "department_as" },
+        { model: EmployeeType, as: "employee_type_as" },
+        { model: Company, as: "company" },
+      ],
+    });
     user = user.dataValues;
     if (!user) {
       return res.status(400).json({ error: "Wrong User Code." });
@@ -241,6 +257,27 @@ exports.signin = async (req, res) => {
       secret,
       { expiresIn: "1h" }
     );
+    let urls = [user.profile_picture, user.company.logo];
+    urls = urls.map((cur) => {
+      if (!cur) return null;
+      var config = {
+        method: "post",
+        url: imageUrl + "signed-url/",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: JSON.stringify({ Key: cur }),
+      };
+      return axios(config)
+        .then((data) => data.data.url)
+        .catch(function (error) {
+          throw error;
+        });
+    });
+    urls = await Promise.all(urls);
+    user.profile_picture = urls[0];
+    user.company.logo = urls[1];
+    console.log(user);
     return res.json({ token, user });
   } catch (err) {
     console.log(err);
@@ -310,6 +347,9 @@ exports.forgotPasswordS1 = async (req, res) => {
   try {
     const { user_code } = req.body;
     const user = await User.findOne({ raw: true, where: { user_code } });
+    if (!user) {
+      return res.json({ error: "Invalid User Code" });
+    }
     const otp = getRandomNumber(6);
     await User.update(
       { otp, otp_create_at: Date.now() },
@@ -346,10 +386,9 @@ exports.forgotPasswordS3 = async (req, res) => {
   try {
     const { newPassword, user_code } = req.body;
     await User.update(
-      { password: get_encrypted_password(newPassword) },
+      { password: get_encrypted_password(newPassword), otp: null },
       { where: { user_code } }
     );
-    await User.update({ otp: null }, { where: { user_code } });
     return res.json({ msg: "password has been changed successfully" });
   } catch (err) {
     console.log(err);
@@ -381,7 +420,20 @@ exports.changeProfilePhoto = async (req, res) => {
   try {
     const { id, profile_picture } = req.body;
     await User.update({ profile_picture }, { where: { id } });
-    return res.json({ msg: "Profile Photo has been updated successfully" });
+    const config = {
+      method: "post",
+      url: imageUrl + "signed-url/",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: JSON.stringify({ Key: profile_picture }),
+    };
+    const url = await axios(config)
+      .then((data) => data.data.url)
+      .catch(function (error) {
+        throw error;
+      });
+    return res.json({ url });
   } catch (err) {
     console.log(err);
     return res.json({ error: "Failed to update profile photo" });

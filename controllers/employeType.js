@@ -1,8 +1,3 @@
-// const allAttributes = [
-//   'id',
-//   'name',
-//   'company_id',
-// ];
 const db = require("../models/index.js");
 const { models } = db.sequelize;
 const { EmployeeType } = models;
